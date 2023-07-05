@@ -48,7 +48,7 @@ public class TacoOrder implements Serializable {
     @Digits(integer = 3, fraction=0, message="Invalid CVV")
     private String ccCVV;
 
-    @OneToMany(cascade = CascadeType.ALL) //@OneToMany, то есть все тако в этом списке относятся к этому одному заказу. Кроме того, анноации передается атрибут cascade со значением CascadeType.ALL, поэтому при удалении заказа все связанные с ним тако тоже будут удалены.
+    @OneToMany(targetEntity=Taco.class) //@OneToMany, то есть все тако в этом списке относятся к этому одному заказу. Кроме того, анноации передается атрибут cascade со значением CascadeType.ALL, поэтому при удалении заказа все связанные с ним тако тоже будут удалены.
     private List<Taco> tacos = new ArrayList<>();
 
     public void addTaco(Taco taco){

@@ -16,9 +16,11 @@ import tacos.Ingredient.Type;
 import tacos.Taco;
 import tacos.TacoOrder;
 import tacos.data.IngredientRepository;
+import tacos.data.TacoRepository;
 
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,22 +41,24 @@ import java.util.stream.Collectors;
 public class DesignTacoController {
 
     private final IngredientRepository ingredientRepo;
-
+    private TacoRepository tacoRepo;
     @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepo){
+    public DesignTacoController(IngredientRepository ingredientRepo, TacoRepository tacoRepo){
         this.ingredientRepo = ingredientRepo;
+        this.tacoRepo = tacoRepo;
     }
 
 
     @ModelAttribute //метод будет вызываться в процессе обработки запроса и создавать список объектов Ingredient, который затем будет помещен в модель.
     public void addIngredientsToModel(Model model) {
 
-        Iterable<Ingredient> ingredients = ingredientRepo.findAll();
+        List<Ingredient> ingredients = new ArrayList<>();
+                ingredientRepo.findAll().forEach(i -> ingredients.add(i));
 
         Type[] types = Ingredient.Type.values();
         for (Type type : types) {
             model.addAttribute(type.toString().toLowerCase(),
-                    filterByType((List<Ingredient>) ingredients, type));
+                    filterByType(ingredients, type));
         }
     }
 
@@ -85,12 +89,13 @@ public class DesignTacoController {
         if(errors.hasErrors()){
             return "design";
         }
-        tacoOrder.addTaco(taco);
-        log.info("Processing taco: {}", taco);
+        Taco saved = tacoRepo.save(taco);
+        tacoOrder.addTaco(saved);
+
         return "redirect:/orders/current";
     }
 
-    private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type){
+    private List<Ingredient> filterByType(List<Ingredient> ingredients, Type type){
         return ingredients.stream()
                 .filter(x ->x.getType()
                 .equals(type))

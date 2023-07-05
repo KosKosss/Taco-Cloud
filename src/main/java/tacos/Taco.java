@@ -28,10 +28,7 @@ public class Taco {
 
 
     @Size(min = 1, message = "You must choose at least 1 ingredient")
-    @ManyToMany() //Объект Taco может включать в список несколько объектов Ingredient, а  один объект Ingredient может быть частью списков в  нескольких объектах Taco.
-    private List<Ingredient> ingredients = new ArrayList<>();
-
-    public void addIngredient(Ingredient ingredient) {
-        this.ingredients.add(ingredient);
-    }
+    @ManyToMany(targetEntity = Ingredient.class)
+    //Объект Taco может включать в список несколько объектов Ingredient, а  один объект Ingredient может быть частью списков в  нескольких объектах Taco.
+    private List<Ingredient> ingredients;
 }
