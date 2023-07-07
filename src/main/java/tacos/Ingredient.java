@@ -9,10 +9,10 @@ import javax.persistence.Id;
 
 
 @Data
-@AllArgsConstructor // упростить cоздание объекта Ingredient со всеми инициализированными свойствами
+//@AllArgsConstructor // упростить cоздание объекта Ingredient со всеми инициализированными свойствами
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true) //JPA требует, чтобы сущности имели конструктор без аргументов, и  аннотация @NoArgsConstructor из библиотеки Lombok автоматически создает такой конструктор.
 @Entity
-//@RequiredArgsConstructor //добавление аннотации @RequiredArgsConstructor гарантирует, что мы по-прежнему будем иметь конструктор со всеми обязательными аргументами, помимо приватного конструктора без аргументов.
+@RequiredArgsConstructor //добавление аннотации @RequiredArgsConstructor гарантирует, что мы по-прежнему будем иметь конструктор со всеми обязательными аргументами, помимо приватного конструктора без аргументов.
 
 public class Ingredient {
 
