@@ -15,10 +15,14 @@ import tacos.Ingredient;
 import tacos.Ingredient.Type;
 import tacos.Taco;
 import tacos.TacoOrder;
+import tacos.User;
 import tacos.data.IngredientRepository;
+import tacos.data.TacoRepository;
+import tacos.data.UserRepository;
 
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,24 +43,18 @@ import java.util.stream.Collectors;
 public class DesignTacoController {
 
     private final IngredientRepository ingredientRepo;
+    private UserRepository userRepo;
+    private TacoRepository tacoRepo;
 
     @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepo){
+    public DesignTacoController(IngredientRepository ingredientRepo, UserRepository userRepo, TacoRepository tacoRepo){
         this.ingredientRepo = ingredientRepo;
+        this.userRepo = userRepo;
+        this.tacoRepo = tacoRepo;
     }
 
 
-    @ModelAttribute //метод будет вызываться в процессе обработки запроса и создавать список объектов Ingredient, который затем будет помещен в модель.
-    public void addIngredientsToModel(Model model) {
 
-        Iterable<Ingredient> ingredients = ingredientRepo.findAll();
-
-        Type[] types = Ingredient.Type.values();
-        for (Type type : types) {
-            model.addAttribute(type.toString().toLowerCase(),
-                    filterByType((List<Ingredient>) ingredients, type));
-        }
-    }
 
     @ModelAttribute(name = "tacoOrder") // метод просто создает новые объекты TacoOrder для размещения в модели
     public TacoOrder order() {
@@ -69,7 +67,17 @@ public class DesignTacoController {
     }
 
     @GetMapping // определяет метод , который должен вызываться для обработки HTTP-запроса GET с путем /design.
-    public String showDesignForm(){
+    public String showDesignForm(Model model, Principal principal){
+        Iterable<Ingredient> ingredients = ingredientRepo.findAll();
+
+        Type[] types = Ingredient.Type.values();
+        for (Type type : types) {
+            model.addAttribute(type.toString().toLowerCase(),
+                    filterByType((List<Ingredient>) ingredients, type));
+        }
+        String username = principal.getName();
+        User user = userRepo.findByUsername(username);
+        model.addAttribute("user", user);
         return "design";
     }
 
@@ -86,6 +94,7 @@ public class DesignTacoController {
             return "design";
         }
         tacoOrder.addTaco(taco);
+        tacoRepo.save(taco);
         log.info("Processing taco: {}", taco);
         return "redirect:/orders/current";
     }
