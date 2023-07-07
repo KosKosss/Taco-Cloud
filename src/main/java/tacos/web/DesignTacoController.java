@@ -21,9 +21,8 @@ import tacos.data.TacoRepository;
 import tacos.data.UserRepository;
 
 
-import javax.validation.Valid;
 import java.security.Principal;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
