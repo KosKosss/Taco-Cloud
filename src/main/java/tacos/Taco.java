@@ -4,6 +4,8 @@ package tacos;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.data.rest.core.annotation.RestResource;
+
 import javax.validation.constraints.NotNull;
 
 import javax.persistence.Entity;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Data
 @Entity
+@RestResource(rel="tacos", path="tacos")
 public class Taco {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
