@@ -3,17 +3,23 @@ package tacos.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import tacos.User;
 import tacos.data.UserRepository;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     /**
      * bean компонент PasswordEncoder, который мы будем использовать при создании новых пользователей и при аутентификации.
@@ -46,21 +52,16 @@ public class SecurityConfig {
      * пользователями; все другие запросы должны обрабатываться независимо от факта аутентификации. Именно это обеспечивает следующая конфигурация
      * все остальные запросы должны обрабатываться безоговорочно.
      */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
                 .authorizeRequests()
-                .antMatchers("/design", "/orders").hasRole("USER")
-                .antMatchers("/", "/**").permitAll()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/design") // если пользователь напрямую открыл страницу входа и успешно прошел аутентификацию, то он будет перенаправлен на страницу /design.
-                .and()
-                .oauth2Login()
-                .loginPage("/login")
-                .and()
-                .logout()
+                .antMatchers(HttpMethod.POST, "/ingredients").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/ingredients/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/api/ingredients")
+                .hasAuthority("SCOPE_writeIngredients")
+                .antMatchers(HttpMethod.DELETE, "/api//ingredients")
+                .hasAuthority("SCOPE_deleteIngredients")
                 .and()
                 .csrf()
                 .ignoringAntMatchers("/h2-console/**")
@@ -69,8 +70,33 @@ public class SecurityConfig {
                 .frameOptions()
                 .sameOrigin()
                 .and()
-                .build();
-
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt())
+                 // Добавляем эту строку
+                .formLogin(); // Пример настройки формы входа (замените на свои нужды)
     }
+
+
+    /**
+     * bean-компонент SecurityFilterChain настраивает Spring
+     * Security так, чтобы все запросы требовали аутентификации.
+     * компонент SecurityFilterChain также включает поддержку OAuth 2 на стороне клиента. В  частности, он настраивает
+     * путь к  странице входа /oauth2/authorization/taco-admin-client.
+     * компонент SecurityFilterChain также включает поддержку OAuth 2 на стороне клиента. В  частности, он настраивает
+     * путь к  странице входа /oauth2/authorization/taco-admin-client.
+     */
+    @Bean
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests(
+                        authorizeRequests -> authorizeRequests.anyRequest().authenticated()
+                )
+                .oauth2Login(
+                        oauth2Login ->
+                                oauth2Login.loginPage("/oauth2/authorization/taco-admin-client"))
+                .oauth2Client(withDefaults());
+        return http.build();
+    }
+
+
 
 }

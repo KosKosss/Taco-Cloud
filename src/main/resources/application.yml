@@ -4,12 +4,19 @@ spring:
     name: tacocloud
   data:
     rest:
-     base-path: /data-api
+      base-path: /data-api
   security:
     oauth2:
       client:
-        registration:
-          facebook:
-            clientId: 216975304618161
-            clientSecret: 46f2f4a6be0722310c2c763dd9804a7f
-            scope: email, public_profile
+        provider:
+          tacocloud:
+          issuer-uri: http://authserver:9000
+          authorization-uri: http://authserver:9000/oauth2/authorize
+          token-uri: http://authserver:9000/oauth2/token
+          jwk-set-uri: http://authserver:9000/oauth2/jwks
+          user-info-uri: http://authserver:9000/userinfo
+          user-name-attribute: sub
+
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks

@@ -12,6 +12,8 @@ import tacos.data.TacoRepository;
 import tacos.data.UserRepository;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 @SpringBootApplication
 public class TacoCloudApplication {
@@ -77,6 +79,8 @@ public class TacoCloudApplication {
 					flourTortilla, cornTortilla, tomatoes,
 					lettuce, salsa));
 			tacoRepo.save(taco3);
+
+			//.addAttribute("admin", user);
 		};
 	}
 }
